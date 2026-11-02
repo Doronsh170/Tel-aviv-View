@@ -95,7 +95,7 @@ let links=elt("div","detailLinks");for(const [label,url] of [["גרף TradingVie
 detailContent.append(elt("p","sub","מחירים ושינויים יומיים נטענים אוטומטית דרך Yahoo Worker, לבדיקה ניסיונית. תשואות מחושבות משערי הסגירה שבקובץ שנטען, ללא התאמות לדיבידנדים אלא אם הנתונים שסופקו כבר מתואמים. חוזק יחסי מוצג רק כשכל חברות ההשוואה כוללות אותם תאריכי התחלה וסיום."));
 const table=elt("table","peers"),thead=elt("thead"),tr=elt("tr");for(const h of ["מניה","מחיר","שינוי יומי","תשואה חודשית","חוזק יחסי"]){const th=elt("th","",h);tr.append(th)}thead.append(tr);table.append(thead);const tbody=elt("tbody");for(const peer of stocks.filter(y=>y.sector===x.sector)){const row=elt("tr");for(const v of [peer.name,experimentalQuotes[peer.symbol]?String(experimentalQuotes[peer.symbol].price):"לא זמין",experimentalQuotes[peer.symbol]?formatPct(experimentalQuotes[peer.symbol].change):"לא זמין",formatPct(periodReturn(peer.symbol,30)),formatPct(relativeReturn(peer.symbol,30))])row.append(elt("td","",v));row.style.cursor="pointer";row.title="בחירת "+peer.name;row.onclick=()=>{showStock(peer.symbol);render()};tbody.append(row)}table.append(tbody);detailContent.append(table);render();if(scroll)detailPanel.scrollIntoView({behavior:"smooth",block:"start"})}
 
-function render(){const q=s.value.trim().toLowerCase();let a=stocks.filter(x=>(!f.value||f.value===x.sector)&&[x.name,x.symbol].some(v=>v.toLowerCase().includes(q)));document.getElementById("count").textContent=a.length;out.replaceChildren();if(!a.length){let d=document.createElement("p");d.className="empty";d.textContent="לא נמצאו חברות";out.append(d)}for(const x of a.slice(0,18)){let d=document.createElement("div");d.className="item"+(selectedSymbol===x.symbol?" selected":"");let wrap=document.createElement("div");let n=document.createElement("div");n.className="name";n.textContent=x.name;let t=document.createElement("span");t.className="ticker";t.textContent=x.symbol;wrap.append(n,t);let actions=document.createElement("div");actions.className="row";let p=document.createElement("span");p.className="pill";p.textContent=x.sector;let a=document.createElement("a");a.href="https://www.tradingview.com/symbols/TASE-"+encodeURIComponent(x.symbol.replace(".TA",""))+"/";a.target="_blank";a.rel="noopener noreferrer";a.textContent="גרף";let choose=elt("button","smallBtn","השווה");choose.onclick=()=>showStock(x.symbol);actions.append(p,choose,a);d.append(wrap,actions);out.append(d)}}
+function render(){const q=s.value.trim().toLowerCase();let a=stocks.filter(x=>(!f.value||f.value===x.sector)&&[x.name,x.symbol].some(v=>v.toLowerCase().includes(q)));document.getElementById("count").textContent=a.length;out.replaceChildren();if(!a.length){let d=document.createElement("p");d.className="empty";d.textContent="לא נמצאו חברות";out.append(d)}for(const x of a.slice(0,28)){let d=document.createElement("div");d.className="item"+(selectedSymbol===x.symbol?" selected":"");let wrap=document.createElement("div");let n=document.createElement("div");n.className="name";n.textContent=x.name;let t=document.createElement("span");t.className="ticker";t.textContent=x.symbol;wrap.append(n,t);let actions=document.createElement("div");actions.className="row";let p=document.createElement("span");p.className="pill";p.textContent=x.sector;let a=document.createElement("a");a.href="https://www.tradingview.com/symbols/TASE-"+encodeURIComponent(x.symbol.replace(".TA",""))+"/";a.target="_blank";a.rel="noopener noreferrer";a.textContent="גרף";let choose=elt("button","smallBtn","השווה");choose.onclick=()=>showStock(x.symbol);actions.append(p,choose,a);d.append(wrap,actions);out.append(d)}}
 
 function formatPct(n){return Number.isFinite(n)?(n>0?"+":"")+n.toFixed(2)+"%":"לא זמין"}
 function closes(symbol){return Array.isArray(marketData[symbol])&&marketData[symbol].length?marketData[symbol]:(techHistory[symbol]||[])}
@@ -108,7 +108,7 @@ function refreshSelectedDetails(){if(!selectedSymbol)return;const sym=selectedSy
 async function loadTechHistory(){
 const status=document.getElementById("historyStatus");status.textContent="בודק endpoint היסטורי מול ה-Worker...";let good=0,errors=[];
 const groups=Array.from({length:Math.ceil(stocks.length/3)},(_,i)=>stocks.slice(i*3,i*3+3).map(s=>s.symbol));
-for(const syms of groups){
+for(let k=0;k<groups.length;k+=3){await Promise.all(groups.slice(k,k+3).map(async syms=>{
 const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),16000);
 try{
 const url=HIST_WORKER_BASE+"?tech="+encodeURIComponent(syms.join(","))+"&bars=90";
@@ -117,10 +117,10 @@ const raw=await res.text();let payload;try{payload=JSON.parse(raw)}catch(e){payl
 if(!res.ok){
 const info=payload?.error||payload?.message||raw.slice(0,140)||"ללא פירוט";
 errors.push(syms.join(",")+": HTTP "+res.status+" "+info);
-if(res.status===400){status.textContent="HTTP 400 מה-Worker. פירוט: "+info+". ייתכן שנקודת tech אינה פרוסה בגרסה הפעילה. אין צורך להחליף את הקוד של Wall Street View.";break}
+if(res.status===400){errors.push("Endpoint tech אינו זמין");return}
 continue;
 }
-if(!payload?.tech){errors.push("התגובה אינה כוללת tech, כנראה גרסת Worker שאינה תומכת בנתיב");break}
+if(!payload?.tech){errors.push("התגובה אינה כוללת tech");return}
 for(const sym of syms){
 const d=payload.tech[sym];
 if(!d||!Array.isArray(d.t)||!Array.isArray(d.c)||d.t.length!==d.c.length){errors.push(sym+": "+(payload.errors?.[sym]||"חסרים נרות"));continue}
@@ -129,7 +129,8 @@ if(series.length>=25){techHistory[sym]=series;good++}else errors.push(sym+": מ�
 }
 }catch(e){errors.push(syms.join(",")+": "+(e.name==="AbortError"?"timeout":e.message))}
 finally{clearTimeout(timer)}
-}
+}));
+status.textContent="נטענו "+good+" מתוך "+stocks.length+" מניות...";renderMarket();}
 document.getElementById("connected").textContent=good+"/"+stocks.length;status.textContent=(good?good+" מניות קיבלו היסטוריה. ":"לא התקבלה היסטוריה. ")+(errors.length?"אבחון: "+errors.slice(0,2).join("; "):"")+" נתונים אינם מאומתים מול הבורסה.";
 renderMarket();if(selectedSymbol)refreshSelectedDetails();return good;
 }
