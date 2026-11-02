@@ -118,7 +118,7 @@ if(!res.ok){
 const info=payload?.error||payload?.message||raw.slice(0,140)||"ללא פירוט";
 errors.push(syms.join(",")+": HTTP "+res.status+" "+info);
 if(res.status===400){errors.push("Endpoint tech אינו זמין");return}
-continue;
+return;
 }
 if(!payload?.tech){errors.push("התגובה אינה כוללת tech");return}
 for(const sym of syms){
