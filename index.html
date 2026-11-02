@@ -131,7 +131,7 @@ if(series.length>=25){techHistory[sym]=series;good++}else errors.push(sym+": מ�
 }catch(e){errors.push(syms.join(",")+": "+(e.name==="AbortError"?"timeout":e.message))}
 finally{clearTimeout(timer)}
 }));
-status.textContent="נטענו "+good+" מתוך "+stocks.length+" מניות...";renderMarket();}
+status.textContent="נטענו "+good+" מתוך "+stocks.length+" מניות...";renderMarket();if(activeTab==="table")renderStocksTable();}
 document.getElementById("connected").textContent=good+"/"+stocks.length;status.textContent=(good?good+" מניות קיבלו היסטוריה. ":"לא התקבלה היסטוריה. ")+(errors.length?"אבחון: "+errors.slice(0,2).join("; "):"")+" נתונים אינם מאומתים מול הבורסה.";
 renderMarket();if(selectedSymbol&&activeTab==="compare")refreshSelectedDetails();if(activeTab==="table")renderStocksTable();return good;
 }
