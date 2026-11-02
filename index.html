@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tel Aviv View | Doron Tools</title><meta name="theme-color" content="#0a1425">
+<style>:root{font-family:Arial, sans-serif;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#07111f;color:#e7ecf5}header{padding:22px 16px;text-align:center;border-bottom:1px solid #263349}h1{margin:0;font-size:25px}header p{color:#a3b5cc;font-size:13px}main{max-width:950px;margin:auto;padding:20px 13px 55px}.panel{background:#101e32;border:1px solid #263b56;border-radius:15px;padding:18px;margin-bottom:16px}h2{font-size:17px;margin:0 0 16px}.sub{font-size:12px;color:#a4b8ce}input,select,button{font:inherit;border:1px solid #395575;border-radius:9px;background:#0a1729;color:#fff;padding:12px;min-height:44px}input{width:100%;margin-bottom:10px}select{min-width:145px;max-width:100%}button{cursor:pointer}button:hover{background:#1c3557}.controls{display:flex;gap:9px;flex-wrap:wrap}.item{padding:14px 3px;border-top:1px solid #263b56;display:flex;align-items:center;justify-content:space-between;gap:12px}.name{font-weight:700}.ticker{color:#90bbf8;font-size:12px;direction:ltr;display:inline-block}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.pill{background:#213b5a;border-radius:30px;font-size:11px;padding:5px 9px;color:#d4e5f9}.empty{color:#a4b8ce;padding:18px 0}.warn{color:#ebc987}a{color:#a9ceff}footer{font-size:12px;color:#a4b8ce;line-height:1.6}.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}.stat>div{background:#101e32;border:1px solid #263b56;border-radius:12px;padding:15px;text-align:center}.stat b{display:block;font-size:24px;margin-bottom:5px}@media(max-width:520px){.stat{grid-template-columns:repeat(2,1fr)}.item{align-items:flex-start;flex-direction:column}}</style></head>
+<body><header><h1>Tel Aviv View</h1><p>מפת מניות הבורסה בתל אביב | Doron Tools</p></header>
+<main><div class="panel"><h2>איתור מניות וקבוצות השוואה</h2><input id="search" type="search" placeholder="חיפוש חברה, סימול או מספר נייר" aria-label="חיפוש מניה"><div class="controls"><select id="sector" aria-label="סינון ענף"><option value="">כל הענפים</option></select><button id="reset">ניקוי סינון</button></div></div>
+<div class="stat"><div><b id="count">0</b><small>חברות במאגר</small></div><div><b id="groups">0</b><small>ענפים</small></div><div><b>לא מחובר</b><small>סטטוס נתוני שוק</small></div></div>
+<section class="panel"><h2>תוצאות חיפוש</h2><div id="results" aria-live="polite"></div></section>
+<section class="panel"><h2>סריקות שוק</h2><p class="warn">נתוני מחיר, שינוי יומי, גאפ ו-RVOL יופעלו רק לאחר אימות חיבור למקור נתונים מורשה. לא מוצגים נתונים מדומים.</p><p class="sub">מנוע הסריקה והחישובים נמצאים בשלבי פיתוח. המסך הזה הוא גרסת בסיס גלויה, לא כלי מסחר פעיל.</p></section>
+<footer>המידע מיועד ללימוד ולמחקר בלבד, אינו המלצת השקעה. נתונים חסרים אינם מוצגים כאפס. מאת: דורון שרייבמן.</footer></main>
+<script>
+const stocks=[
+{symbol:"LUMI.TA",name:"בנק לאומי",sector:"בנקים"},
+{symbol:"POLI.TA",name:"בנק הפועלים",sector:"בנקים"},
+{symbol:"DSCT.TA",name:"בנק דיסקונט",sector:"בנקים"},
+{symbol:"MZTF.TA",name:"מזרחי טפחות",sector:"בנקים"},
+{symbol:"TEVA.TA",name:"טבע",sector:"פארמה"},
+{symbol:"NICE.TA",name:"נייס",sector:"טכנולוגיה"},
+{symbol:"ESLT.TA",name:"אלביט מערכות",sector:"ביטחון"},
+{symbol:"ICL.TA",name:"איי.סי.אל",sector:"כימיה"},
+{symbol:"BEZQ.TA",name:"בזק",sector:"תקשורת"},
+{symbol:"AZRG.TA",name:"קבוצת עזריאלי",sector:"נדל״ן"}
+];
+const s=document.getElementById("search"),f=document.getElementById("sector"),out=document.getElementById("results");
+const sectors=[...new Set(stocks.map(x=>x.sector))].sort((a,b)=>a.localeCompare(b,"he"));
+sectors.forEach(x=>{let o=document.createElement("option");o.textContent=o.value=x;f.append(o)});
+document.getElementById("groups").textContent=sectors.length;
+function render(){const q=s.value.trim().toLowerCase();let a=stocks.filter(x=>(!f.value||f.value===x.sector)&&[x.name,x.symbol].some(v=>v.toLowerCase().includes(q)));document.getElementById("count").textContent=a.length;out.replaceChildren();if(!a.length){let d=document.createElement("p");d.className="empty";d.textContent="לא נמצאו חברות";out.append(d)}for(const x of a){let d=document.createElement("div");d.className="item";let wrap=document.createElement("div");let n=document.createElement("div");n.className="name";n.textContent=x.name;let t=document.createElement("span");t.className="ticker";t.textContent=x.symbol;wrap.append(n,t);let actions=document.createElement("div");actions.className="row";let p=document.createElement("span");p.className="pill";p.textContent=x.sector;let a=document.createElement("a");a.href="https://www.tradingview.com/symbols/TASE-"+encodeURIComponent(x.symbol.replace(".TA",""))+"/";a.target="_blank";a.rel="noopener noreferrer";a.textContent="גרף";actions.append(p,a);d.append(wrap,actions);out.append(d)}}
+s.addEventListener("input",render);f.addEventListener("change",render);document.getElementById("reset").onclick=()=>{s.value="";f.value="";render()};render();
+</script></body></html>
