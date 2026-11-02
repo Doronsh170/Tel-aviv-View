@@ -1,0 +1,12 @@
+[
+ {"name":"בנק לאומי","yahoo_symbol":"LUMI.TA","sector":"בנקים","security_id":"604611"},
+ {"name":"בנק הפועלים","yahoo_symbol":"POLI.TA","sector":"בנקים","security_id":"662577"},
+ {"name":"בנק דיסקונט","yahoo_symbol":"DSCT.TA","sector":"בנקים","security_id":"691212"},
+ {"name":"בנק מזרחי טפחות","yahoo_symbol":"MZTF.TA","sector":"בנקים","security_id":"695437"},
+ {"name":"בזק","yahoo_symbol":"BEZQ.TA","sector":"תקשורת","security_id":"230011"},
+ {"name":"טבע","yahoo_symbol":"TEVA.TA","sector":"פארמה","security_id":"629014"},
+ {"name":"נייס","yahoo_symbol":"NICE.TA","sector":"טכנולוגיה","security_id":"273011"},
+ {"name":"אלביט מערכות","yahoo_symbol":"ESLT.TA","sector":"תעשייה ביטחונית","security_id":"1081124"},
+ {"name":"איי.סי.אל","yahoo_symbol":"ICL.TA","sector":"כימיקלים","security_id":"281014"},
+ {"name":"עזריאלי קבוצה","yahoo_symbol":"AZRG.TA","sector":"נדל״ן","security_id":"1119478"}
+]
